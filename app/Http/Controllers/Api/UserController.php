@@ -8,29 +8,63 @@ use App\Models\User;
 use OpenApi\Attributes\Get;
 use OpenApi\Attributes\JsonContent;
 use OpenApi\Attributes\Response;
+use OpenApi\Attributes\Parameter;
+use OpenApi\Attributes\Schema;
+use OpenApi\Attributes\Items;
 
 class UserController extends Controller
 {
-//    #[Get(
-//        path: '/api/exec-platforms',
-//        summary: 'Получение списка сред выполнения',
-//        security: [['bearer_token' => []]],
-//        tags: ['ExecutionPlatform'],
-//        responses: [
-//            new Response(
-//                response: 200,
-//                description: 'Список сервисов',
-//                content: new JsonContent(
-//                    ref: '#/components/schemas/ExecutionPlatform'
-//                )
-//            ),
-//        ],
-//    )]
+    #[Get(
+        path: '/api/users',
+        summary: 'Получение списка пользователей',
+        security: [['bearer_token' => []]],
+        tags: ['Users'],
+        responses: [
+            new Response(
+                response: 200,
+                description: 'Список users',
+                content: new JsonContent(
+                    type: 'array',
+                    items: new Items(
+                        ref: '#/components/schemas/UserResource',
+                    ),
+                )
+            ),
+        ],
+    )]
 
     public function index() {
         return UserResource::collection(User::all());
     }
 
+    #[Get(
+        path: '/api/users/{user}',
+        summary: 'Получение одного пользователя',
+        security: [['bearer_token' => []]],
+        tags: ['Users'],
+        parameters: [
+            new Parameter (
+                parameter: 'user',
+                name: 'userId',
+                description: 'Уникальный ключ',
+                in: 'path',
+                required: true,
+                schema: new Schema(
+                    type: 'integer',
+                    format: 'int64',
+                )
+            ),
+        ],
+        responses: [
+            new Response(
+                    response: 200,
+                    description: 'User',
+                    content: new JsonContent(
+                        ref: '#/components/schemas/UserResource',
+                    )
+                ),
+            ],
+        )]
     public function show(User $user) {
         return new UserResource($user);
     }
